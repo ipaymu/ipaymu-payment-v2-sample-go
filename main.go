@@ -13,8 +13,8 @@ import (
 )
 
 func main() {
-	var ipaymu_va = "1179000899"                      //your ipaymu va
-	var ipaymu_key = "QbGcoO0Qds9sQFDmY0MWg1Tq.xtuh1" // your ipaymu api key
+	var ipaymuVa = "1179000899"                      //your ipaymu va
+	var ipaymuKey = "QbGcoO0Qds9sQFDmY0MWg1Tq.xtuh1" // your ipaymu api key
 
 	url, _ := url.Parse("https://sandbox.ipaymu.com/api/v2/payment") //url sandbox mode
 	//url, _ := url.Parse("https://my.ipaymu.com/api/v2/payment") //url production mode
@@ -32,13 +32,15 @@ func main() {
 		"buyerPhone":  "0812312312",                         // optional
 	})
 
+	//generate signature
 	bodyHash := sha256.Sum256([]byte(postBody))
 	bodyHashToString := hex.EncodeToString(bodyHash[:])
-	stringToSign := "POST:" + ipaymu_va + ":" + strings.ToLower(string(bodyHashToString)) + ":" + ipaymu_key
+	stringToSign := "POST:" + ipaymuVa + ":" + strings.ToLower(string(bodyHashToString)) + ":" + ipaymuKey
 
-	h := hmac.New(sha256.New, []byte(ipaymu_key))
+	h := hmac.New(sha256.New, []byte(ipaymuKey))
 	h.Write([]byte(stringToSign))
 	signature := hex.EncodeToString(h.Sum(nil))
+	// end generate signatrure
 
 	reqBody := ioutil.NopCloser(strings.NewReader(string(postBody)))
 
@@ -47,7 +49,7 @@ func main() {
 		URL:    url,
 		Header: map[string][]string{
 			"Content-Type": {"application/json"},
-			"va":           {ipaymu_va},
+			"va":           {ipaymuVa},
 			"signature":    {signature},
 		},
 		Body: reqBody,
